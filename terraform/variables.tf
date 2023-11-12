@@ -44,7 +44,7 @@ variable "vpc_cidr" {
 variable "iot_topic" {
   description = "iott opic"
   type        = string
-  default     = "$aws/rules/iot_msk_rule"
+  default     = "device/#"
 }
 
 variable "kafka_topic" {
