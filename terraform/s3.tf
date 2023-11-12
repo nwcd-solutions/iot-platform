@@ -1,12 +1,3 @@
-locals {
-  debezium_connector_external_url = "https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/2.3.0.Final/debezium-connector-postgres-2.3.0.Final-plugin.tar.gz"
-  debezium_connector              = "debezium-connector-postgres/debezium-connector-postgres-2.3.0.Final.jar"
-  mongodb_connector_external_url  = "https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/1.10.0/mongo-kafka-connect-1.10.0-all.jar"
-  mongodb_connector               = "mongodb-connector/docdb-connector-plugin.zip"
-  mongodb_trust_store             = "mongodb-connector/rds-truststore.jks"
-  s3_connector                    = "s3-connector/confluentinc-kafka-connect-s3-10.5.7.zip" 
-}
-
 module "s3_logs_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 3.0"
