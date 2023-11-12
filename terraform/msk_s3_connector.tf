@@ -1,3 +1,7 @@
+locals {
+  s3_connector                    = "s3-connector/confluentinc-kafka-connect-s3-10.5.7.zip" 
+}
+
 resource "aws_s3_object" "s3_connector" {
   bucket = module.s3_artifacts_bucket.s3_bucket_id
   key    = local.s3_connector
