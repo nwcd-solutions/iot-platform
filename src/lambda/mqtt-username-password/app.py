@@ -65,15 +65,15 @@ def build_policy(username, authenticated):
                             'Action': 'iot:Subscribe',
                             'Effect': 'Allow',
                             'Resource': [
-                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topicfilter/device/{username}/*"
+                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topicfilter/device/{username}/#"
                             ]
                         },
                         {
                             'Action': 'iot:Publish',
                             'Effect': 'Allow',
                             'Resource': [
-                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/device/{username}",
-                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/$aws/rules/{os.environ['RULE_NAME']}/{username}"
+                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/device/{username}/#",
+                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/$aws/rules/{os.environ['RULE_NAME']}/{username}/#"
                             ]
                         }
                     ]
