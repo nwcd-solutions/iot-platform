@@ -1,3 +1,10 @@
+###################################################################################################################################################################
+#
+#  Set up AWS Identity and Access Management (IAM) role and policy for AWS IoT rule
+#  To grant AWS IoT access to stream data to our Amazon MSK cluster, you must create an IAM role with a policy that allows access to the required AWS resources.
+#
+###################################################################################################################################################################
+
 resource "aws_iam_role" "iot_msk_rule_role" {
   name               = "iot_msk_rule_role"
   assume_role_policy = data.aws_iam_policy_document.assume_iot_role.json
@@ -9,17 +16,14 @@ resource "aws_iam_role_policy" "iam_policy_for_iotmsk" {
   policy = data.aws_iam_policy_document.iam_policy_for_iotmsk.json
 }
 
-resource "aws_iot_topic_rule_destination" "iot_msk_destination" {
-  vpc_configuration {
-    role_arn        = aws_iam_role.iot_msk_rule_role.arn
-    security_groups = [module.msk_sg.security_group_id]
-    subnet_ids      =  module.vpc.private_subnets
-    vpc_id          = module.vpc.vpc_id
-  }
-}
+###################################################################################################################################################################
+#
+#  Create AWS IoT rule 
+#
+###################################################################################################################################################################
 
 resource "aws_iot_topic_rule" "iot_msk_rule" {
-  name        = "IoT_MSK_Rule"
+  name        = "iot_msk_rule"
   description = "Rule to forward MQTT messages to MSK"
   enabled     = true
   sql         = "SELECT * FROM '${var.iot_topic}'"

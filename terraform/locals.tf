@@ -16,7 +16,12 @@ locals {
 
 
   tags = {
-    Blueprint  = local.name
-    GithubRepo = "github.com/nwcd-solutions/Airflow-on-EKS"
+    Name  = local.name
   }
 }
+
+resource "random_string" "random" {
+  length           = 6
+  special          = false
+}
+

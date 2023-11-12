@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "iam_policy_for_mskconnect" {
     actions   = [
       "kafka-cluster:*"
     ]
-    resources = ["arn:aws:kafka:::*/*/*"]
+    resources = ["arn:aws:kafka:${var.region}:${var.account_id}:*/*/*"]
   }
 }
 

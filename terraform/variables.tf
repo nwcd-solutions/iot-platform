@@ -1,8 +1,3 @@
-resource "random_string" "random" {
-  length           = 6
-  special          = false
-}
-
 variable "name" {
   description = "Name of the VPC and EKS Cluster"
   type        = string
@@ -15,10 +10,10 @@ variable "region" {
   default     = "us-east-1"
 }
 
-variable "eks_cluster_version" {
-  description = "EKS Cluster version"
+variable "account_id" {
+  description = "Account ID"
   type        = string
-  default     = "1.23"
+  default     = "1234567890"
 }
 
 variable "msk_username" {
@@ -27,8 +22,14 @@ variable "msk_username" {
   default     = "msk"
 }
 
+variable "msk_instance_type" {
+  description = "Instance Type of Kafka Broker"
+  type        = string
+  default     = "kafka.t3.small"
+}
+
 variable "docdb_username" {
-  description = "DocumentDB user name"
+  description = "Device Auth Credential db"
   type        = string
   default     = "docdb"
 }
@@ -43,7 +44,7 @@ variable "vpc_cidr" {
 variable "iot_topic" {
   description = "iott opic"
   type        = string
-  default     = "sdk/test/js"
+  default     = "$aws/rules/iot_msk_rule"
 }
 
 variable "kafka_topic" {
