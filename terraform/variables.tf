@@ -42,7 +42,7 @@ variable "vpc_cidr" {
 }
 
 variable "iot_topic" {
-  description = "iott opic"
+  description = "iot opic"
   type        = string
   default     = "device/#"
 }
