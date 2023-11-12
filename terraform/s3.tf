@@ -90,23 +90,5 @@ module "s3_artifacts_bucket" {
   tags = local.tags
 }
 
-#resource "aws_s3_object" "lambda_python_layer" {
-#  bucket = module.s3_artifacts_bucket.s3_bucket_id
-#  key    = local.lambda_python_layer
-#  source = local.lambda_python_layer
 
-#  depends_on = [
-#    null_resource.lambda_python_layer
-#  ]
-#}
-
-#resource "null_resource" "lambda_python_layer" {
-#  provisioner "local-exec" {
-#    command = <<-EOT
-#      cd src/lambda/layer  \ 
-#        && pip install -r requirements.txt -t python/ \
-#        && zip -r ../layer.zip python
-# EOT
-#  }
-#}
 
