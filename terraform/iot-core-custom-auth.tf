@@ -38,7 +38,7 @@ module "lambda_layer_s3" {
   description         = "My amazing lambda layer (deployed from S3)"
   compatible_runtimes = ["python3.8"]
 
-  source_path = "src/lambda/layer/"
+  source_path = "../src/lambda/layer/"
 
   store_on_s3 = true
   s3_bucket   = module.s3_artifacts_bucket.s3_bucket_id
@@ -54,7 +54,7 @@ module "mqtt_auth_lambda" {
   layers = [
     module.lambda_layer_s3.lambda_layer_arn,
   ]
-  source_path = "src/lambda/mqtt-username-password"
+  source_path = "../src/lambda/mqtt-username-password"
   environment_variables = {
     AWS_ACCOUNT_ID = var.account_id,
     AWS_REGION_NAME = var.region
