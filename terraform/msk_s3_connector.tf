@@ -75,7 +75,7 @@ resource "aws_mskconnect_connector" "s3_connector" {
     "flush.size"="1"
     "schema.compatibility" = "NONE"
     "tasks.max"            = "2"
-    "topics"               = var.kafka_topic
+    "topics"               = var.kafka_consumer_s3_topic
     "partitioner.class"    = "io.confluent.connect.storage.partitioner.DefaultPartitioner"
     "storage.class"="io.confluent.connect.s3.storage.S3Storage"
     "s3.bucket.name"= module.s3_raw_bucket.s3_bucket_id
