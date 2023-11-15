@@ -47,10 +47,20 @@ variable "iot_topic" {
   default     = "device/#"
 }
 
-variable "kafka_topic" {
+variable "kafka_producer_iot_topic" {
   description = "kafka opic"
   type        = string
-  default     = "iottopic"
+  default     = "iotproducer"
 }
 
+variable "kafka_consumer_s3_topic" {
+  description = "kafka opic"
+  type        = string
+  default     = "iotproducer"
+}
 
+variable "kafka_consumer_docdb_topic" {
+  description = "kafka opic"
+  type        = string
+  default     = "iotproducer"
+}
