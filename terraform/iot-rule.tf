@@ -39,7 +39,7 @@ resource "aws_iot_topic_rule" "iot_msk_rule" {
         "sasl.scram.password" = "$${get_secret('AmazonMSK_${random_string.random.result}','SecretString', 'password','${aws_iam_role.iot_msk_rule_role.arn}')}"
     }
     destination_arn   = aws_iot_topic_rule_destination.iot_msk_destination.arn
-    topic             = var.kafka_topic
+    topic             = var.kafka_producer_iot_topic
   }
  
 }
