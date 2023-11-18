@@ -1,0 +1,105 @@
+locals {
+  mongodb_connector_external_url  = "https://repo1.maven.org/maven2/org/mongodb/kafka/mongo-kafka-connect/1.10.0/mongo-kafka-connect-1.10.0-all.jar"
+  mongodb_connector               = "mongodb-connector/docdb-connector-plugin.zip"
+  mongodb_trust_store             = "mongodb-connector/rds-truststore.jks"
+}
+
+
+
+resource "aws_s3_object" "mongodb_connector" {
+  bucket = module.s3_artifacts_bucket.s3_bucket_id
+  key    = local.mongodb_connector
+  source = local.mongodb_connector
+
+  depends_on = [
+    null_resource.mongodb_connector
+  ]
+}
+
+resource "null_resource" "mongodb_connector" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      sed -i 's/<truststorePassword>/${random_password.docdb.result}/g' scripts/generate_docdb_connector_artifacts.sh \
+        && /bin/bash scripts/generate_docdb_connector_artifacts.sh \
+        && mkdir  mongodb-connector  \
+        && cp /tmp/certs/rds-truststore.jks  mongodb-connector/ \
+        && cp /tmp/docdb-connector-plugin.zip mongodb-connector/
+ EOT
+  }
+}
+
+
+resource "aws_s3_object" "mongodb_trust_store" {
+  bucket = module.s3_artifacts_bucket.s3_bucket_id
+  key    = local.mongodb_trust_store
+  source = local.mongodb_trust_store
+
+  depends_on = [
+    null_resource.mongodb_connector
+  ]
+
+resource "aws_mskconnect_custom_plugin" "docdb" {
+  name         = "docdb"
+  content_type = "ZIP"
+  location {
+    s3 {
+      bucket_arn = module.s3_artifacts_bucket.s3_bucket_arn
+      file_key   = aws_s3_object.s3_connector.id
+      object_version = aws_s3_object.s3_connector.version_id
+    }
+  }
+}
+
+
+resource "aws_mskconnect_connector" "documentdb_connector" {
+  name = "docdb-connector"
+  kafkaconnect_version = "2.7.1"
+
+  capacity {
+    autoscaling {
+      mcu_count        = 1
+      min_worker_count = 1
+      max_worker_count = 2
+
+      scale_in_policy {
+        cpu_utilization_percentage = 20
+      }
+
+      scale_out_policy {
+        cpu_utilization_percentage = 80
+      }
+    }
+  }
+
+  connector_configuration = {
+    "connector.class" = "com.github.jcustenborder.kafka.connect.simulator.SimulatorSinkConnector"
+    "tasks.max"       = "1"
+    "topics"          = "example"
+  }
+
+  kafka_cluster {
+    apache_kafka_cluster {
+      bootstrap_servers = module.msk_kafka_cluster.bootstrap_brokers_sasl_iam
+      vpc {
+        security_groups = [module.msk_sg.security_group_id]
+        subnets         = module.vpc.private_subnets
+      }
+    }
+  }
+
+  kafka_cluster_client_authentication {
+    authentication_type = "IAM"
+  }
+  kafka_cluster_encryption_in_transit {
+    encryption_type = "TLS"
+  }
+
+  plugin {
+    custom_plugin {
+      arn      = module.msk_kafka_cluster.connect_custom_plugins.mongodb.arn
+      revision = module.msk_kafka_cluster.connect_custom_plugins.mongodb.latest_revision
+    }
+  }
+
+  service_execution_role_arn = aws_iam_role.msk_connect_role.arn
+}
