@@ -19,7 +19,7 @@ resource "aws_s3_object" "mongodb_connector" {
 resource "null_resource" "mongodb_connector" {
   provisioner "local-exec" {
     command = <<-EOT
-      sed -i 's/<truststorePassword>/${random_password.docdb.result}/g' scripts/generate_docdb_connector_artifacts.sh \
+      sed -i 's/<truststorePassword>/${random_password.docdb.result}/g' ../scripts/generate_docdb_connector_artifacts.sh \
         && /bin/bash scripts/generate_docdb_connector_artifacts.sh \
         && mkdir  mongodb-connector  \
         && cp /tmp/certs/rds-truststore.jks  mongodb-connector/ \
@@ -44,8 +44,8 @@ resource "aws_mskconnect_custom_plugin" "docdb" {
   location {
     s3 {
       bucket_arn = module.s3_artifacts_bucket.s3_bucket_arn
-      file_key   = aws_s3_object.s3_connector.id
-      object_version = aws_s3_object.s3_connector.version_id
+      file_key   = aws_s3_object.mongodb_connector.id
+      object_version = aws_s3_object.mongodb_connector.version_id
     }
   }
 }
@@ -72,9 +72,30 @@ resource "aws_mskconnect_connector" "documentdb_connector" {
   }
 
   connector_configuration = {
-    "connector.class" = "com.github.jcustenborder.kafka.connect.simulator.SimulatorSinkConnector"
+    "connector.class" = "com.mongodb.kafka.connect.MongoSinkConnector"
     "tasks.max"       = "1"
     "topics"          = "example"
+    "connection.uri": "mongodb://<USERNAME>:<PASSWORD>@<HOSTNAME>:<PORT>/<DATABASE>",
+    "database": "<DATABASE>",
+    "collection": "<COLLECTION>",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true",
+    "errors.deadletterqueue.topic.name": "dlq",
+    "errors.deadletterqueue.context.headers.enable": "true",
+    "errors.deadletterqueue.topic.replication.factor": "3",
+    "errors.retry.delay.max.ms": "60000",
+    "errors.retry.timeout": "300000",
+    "errors.retry.max.attempts": "10",
+    "mongodb.output.format.value": "document",
+    "mongodb.database": "<DATABASE>",
+    "mongodb.collection": "<COLLECTION>",
+    "mongodb.document.id.strategy": "com.mongodb.kafka.connect.sink.processor.id.strategy.PartialValueStrategy",
+    "mongodb.document.id.strategy.partial.value.projection.list": "[\"_id\"]",
+    "mongodb.document.id.strategy.partial.value.projection.type": "AllowList"
   }
 
   kafka_cluster {
