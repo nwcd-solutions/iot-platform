@@ -37,6 +37,18 @@ resource "aws_s3_object" "mongodb_trust_store" {
   depends_on = [
     null_resource.mongodb_connector
   ]
+}
+
+resource "aws_iam_role" "msk_docdb_connect_role" {
+  name               = "msk_docdb_connect_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_kafkaconnect_role.json
+}
+
+resource "aws_iam_role_policy" "msk_docdb_connect_policy" {
+  name   = "msk_docdb_connect_policy"
+  role   = aws_iam_role.msk_docdb_connect_role.id
+  policy = data.aws_iam_policy_document.iam_policy_for_mskconnect.json
+}
 
 resource "aws_mskconnect_custom_plugin" "docdb" {
   name         = "docdb"
@@ -117,10 +129,17 @@ resource "aws_mskconnect_connector" "documentdb_connector" {
 
   plugin {
     custom_plugin {
-      arn      = module.msk_kafka_cluster.connect_custom_plugins.mongodb.arn
-      revision = module.msk_kafka_cluster.connect_custom_plugins.mongodb.latest_revision
+      arn      = aws_mskconnect_custom_plugin.docdb.arn
+      revision = aws_mskconnect_custom_plugin.docdb.latest_revision
     }
   }
-
-  service_execution_role_arn = aws_iam_role.msk_connect_role.arn
+  log_delivery {
+    worker_log_delivery {
+      cloudwatch_logs {
+        enabled = true
+        log_group = "msk-connect"
+      }
+    }
+  }
+  service_execution_role_arn = aws_iam_role.msk_docdb_connect_role.arn
 }
