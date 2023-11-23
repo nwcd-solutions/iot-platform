@@ -41,6 +41,10 @@ module "sasl_secret" {
 #
 #####################################################################################################################################################
 
+resource "aws_cloudwatch_log_group" "msk_connect_log_group" {
+  name = "msk-connect"
+}
+
 module "msk_kafka_cluster" {
   source  = "clowdhaus/msk-kafka-cluster/aws" 
 
