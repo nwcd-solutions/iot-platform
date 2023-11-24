@@ -44,7 +44,7 @@ variable "vpc_cidr" {
 variable "iot_topic" {
   description = "iot opic"
   type        = string
-  default     = "device/#"
+  default     = "#"
 }
 
 variable "kafka_producer_iot_topic" {
