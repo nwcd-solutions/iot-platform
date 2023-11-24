@@ -31,8 +31,13 @@ def handler(event, context):
                 print(f"Password value: {column_password}")
                 print(f"Username value: {column_username}")
                 if username == column_username and password == column_password:
+                    if '&' in  username:
+                        parts =  username.split('&')
+                        topic = f"/{parts[1]}/{parts[0]}"
+                    else :
+                        topic = username                    
                     print("authorize success")
-                    return build_policy(username, True)
+                    return build_policy(topic, True)
             else:
                 print("Item not found")
  
@@ -65,15 +70,15 @@ def build_policy(username, authenticated):
                             'Action': 'iot:Subscribe',
                             'Effect': 'Allow',
                             'Resource': [
-                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topicfilter/device/{username}/*"
+                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topicfilter/{username}/*"
                             ]
                         },
                         {
                             'Action': 'iot:Publish',
                             'Effect': 'Allow',
                             'Resource': [
-                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/device/{username}/*",
-                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/$aws/rules/{os.environ['RULE_NAME']}/{username}/*"
+                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/{username}/*",
+                                f"arn:aws:iot:{os.environ['AWS_REGION_NAME']}:{os.environ['AWS_ACCOUNT_ID']}:topic/$aws/rules/{os.environ['RULE_NAME']}{username}/*"
                             ]
                         }
                     ]
